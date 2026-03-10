@@ -1,0 +1,1239 @@
+<!-- ============================================
+     КАЛЬКУЛЯТОР УБОРКИ - ВЕКТОР ЧИСТОТЫ
+     Полная версия для вставки на сайт
+     ============================================ -->
+
+<div id="vector-calculator">
+    <style>
+        /* ============================================
+           CSS-ПЕРЕМЕННЫЕ (стиль vecktor23.ru)
+           ============================================ */
+        #vector-calculator {
+            --primary-color: #4DB8B2;
+            --primary-dark: #3D9A94;
+            --secondary-color: #1A2B4A;
+            --accent-color: #4A6FA5;
+            --text-color: #1A2B4A;
+            --light-bg: #F5F7FA;
+            --white: #FFFFFF;
+            --border-color: #E0E6ED;
+            --shadow-color: rgba(26, 43, 74, 0.1);
+            --blue-gradient: linear-gradient(135deg, #4A6FA5 0%, #2E4A7A 100%);
+
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            background-color: var(--light-bg);
+        }
+
+        #vector-calculator * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        #vector-calculator form {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #vector-calculator form.show-calc {
+            opacity: 1;
+        }
+
+        /* ============================================
+           СЕТКА: ДВЕ КОЛОНКИ
+           ============================================ */
+        .vc-calc-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 50px;
+            position: relative;
+        }
+
+        .vc-calc-left {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .vc-calc-right {
+            position: sticky;
+            top: 40px;
+            height: fit-content;
+            background: var(--blue-gradient);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(74, 111, 165, 0.4);
+            padding: 40px;
+            color: var(--white);
+        }
+
+        /* ============================================
+           ЗАГОЛОВКИ
+           ============================================ */
+        .vc-section-title {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 26px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .vc-subsection-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 18px;
+            margin: 35px 0 20px 0;
+            cursor: pointer;
+            padding: 18px 0;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+
+        .vc-subsection-title:hover {
+            color: var(--primary-color);
+        }
+
+        .vc-subsection-title::after {
+            content: '+';
+            font-size: 28px;
+            font-weight: 300;
+            transition: transform 0.3s ease;
+        }
+
+        .vc-subsection-title.active::after {
+            transform: rotate(45deg);
+        }
+
+        .vc-services-block {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .vc-services-block.active {
+            max-height: 2000px;
+            opacity: 1;
+        }
+
+        /* ============================================
+           ПОЛЯ ФОРМЫ
+           ============================================ */
+        .vc-form-row {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .vc-form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .vc-label {
+            display: block;
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+
+        .vc-select,
+        .vc-input {
+            width: 100%;
+            height: 56px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0 20px;
+            font-family: inherit;
+            font-size: 15px;
+            background-color: var(--white);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .vc-select:focus,
+        .vc-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(77, 184, 178, 0.15);
+        }
+
+        .vc-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234DB8B2' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+        }
+
+        /* ============================================
+           RANGE SLIDER
+           ============================================ */
+        .vc-range-container {
+            background-color: var(--white);
+            border-radius: 16px;
+            padding: 30px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .vc-range-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .vc-range-value {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 32px;
+        }
+
+        .vc-range-value::after {
+            content: " м²";
+            font-size: 18px;
+        }
+
+        .vc-range-slider {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: linear-gradient(to right, var(--primary-color) 0%, var(--border-color) 100%);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .vc-range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s ease;
+        }
+
+        .vc-range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        .vc-range-slider::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            border: none;
+        }
+
+        .vc-range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #8898AA;
+            font-weight: 500;
+        }
+
+        /* ============================================
+           CHECKBOXES
+           ============================================ */
+        .vc-checkboxes-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .vc-checkbox-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 18px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            background-color: var(--white);
+            transition: all 0.2s ease;
+        }
+
+        .vc-checkbox-item:hover {
+            background-color: #F0F7FF;
+        }
+
+        .vc-checkbox-item.checked {
+            background-color: #E8F4F8;
+            border-color: var(--primary-color);
+        }
+
+        .vc-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            font-size: 15px;
+            color: var(--text-color);
+            flex: 1;
+        }
+
+        .vc-checkbox-custom {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .vc-checkbox-item.checked .vc-checkbox-custom {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .vc-checkbox-custom::after {
+            content: '✓';
+            color: var(--white);
+            font-size: 14px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .vc-checkbox-item.checked .vc-checkbox-custom::after {
+            display: block;
+        }
+
+        .vc-checkbox-input {
+            display: none;
+        }
+
+        /* ============================================
+           QUANTITY CONTROLS
+           ============================================ */
+        .vc-quantity-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .vc-quantity-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            font-size: 22px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vc-quantity-btn:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.08);
+        }
+
+        .vc-quantity-btn:disabled {
+            background-color: #CCCCCC;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .vc-quantity-value {
+            font-weight: 600;
+            color: var(--secondary-color);
+            min-width: 40px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        /* ============================================
+           ИТОГОВАЯ СУММА
+           ============================================ */
+        .vc-total-section {
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+        }
+
+        .vc-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .vc-total-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .vc-total-label {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .vc-total-amount {
+            font-size: 42px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .vc-cta-text {
+            font-size: 16px;
+            line-height: 1.5;
+            opacity: 0.95;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        /* ============================================
+           КНОПКА
+           ============================================ */
+        .vc-submit-btn {
+            width: 100%;
+            height: 60px;
+            background-color: var(--white);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 17px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .vc-submit-btn:hover {
+            background-color: var(--light-bg);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ============================================
+           LOADING
+           ============================================ */
+        .vc-loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--white);
+        }
+
+        .vc-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--white);
+            border-radius: 50%;
+            animation: vc-spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes vc-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ============================================
+           АДАПТИВНОСТЬ
+           ============================================ */
+        @media (max-width: 960px) {
+            .vc-calc-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .vc-calc-left {
+                gap: 30px;
+            }
+
+            .vc-calc-right {
+                position: static;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #vector-calculator {
+                padding: 30px 20px;
+            }
+
+            .vc-form-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .vc-form-group {
+                min-width: 100%;
+            }
+
+            .vc-section-title {
+                font-size: 22px;
+                margin-bottom: 25px;
+            }
+
+            .vc-subsection-title {
+                font-size: 17px;
+                margin: 25px 0 15px 0;
+                padding: 15px 0;
+            }
+
+            .vc-range-container {
+                padding: 20px;
+            }
+
+            .vc-range-value {
+                font-size: 28px;
+            }
+
+            .vc-checkbox-item {
+                padding: 14px 15px;
+            }
+
+            .vc-checkbox-label {
+                font-size: 14px;
+                gap: 12px;
+            }
+
+            .vc-quantity-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
+            }
+
+            .vc-quantity-value {
+                min-width: 35px;
+                font-size: 15px;
+            }
+
+            .vc-total-amount {
+                font-size: 32px;
+            }
+
+            .vc-total-label {
+                font-size: 16px;
+            }
+
+            .vc-calc-right {
+                padding: 25px 20px;
+                border-radius: 16px;
+            }
+
+            .vc-submit-btn {
+                height: 54px;
+                font-size: 15px;
+            }
+        }
+    </style>
+
+    <form id="vc-form">
+        <div class="vc-calc-container">
+            <!-- ЛЕВАЯ КОЛОНКА -->
+            <div class="vc-calc-left">
+                
+                <!-- Основные параметры -->
+                <div>
+                    <div class="vc-section-title">Основные параметры</div>
+                    
+                    <div class="vc-form-row">
+                        <div class="vc-form-group">
+                            <label class="vc-label">Тип уборки</label>
+                            <select class="vc-select" id="vc-cleaning-type">
+                                <option value="start">Старт к чистоте</option>
+                                <option value="path">Путь к порядку</option>
+                                <option value="vector">Вектор Премиум</option>
+                                <option value="point">Точка обновления</option>
+                                <option value="quant">Квант чистоты</option>
+                                <option value="orbit">Новая орбита</option>
+                            </select>
+                        </div>
+
+                        <div class="vc-form-group">
+                            <label class="vc-label">Степень загрязнения</label>
+                            <select class="vc-select" id="vc-dirty-type">
+                                <option value="0">Слабая</option>
+                                <option value="1">Средняя</option>
+                                <option value="2">Сильная</option>
+                                <option value="3">Максимальная</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <label class="vc-label">Площадь помещения</label>
+                        <div class="vc-range-container">
+                            <div class="vc-range-header">
+                                <span class="vc-range-value" id="vc-area-display">50</span>
+                            </div>
+                            <input type="range" class="vc-range-slider" id="vc-area-range" 
+                                   min="30" max="600" value="50" step="1">
+                            <div class="vc-range-labels">
+                                <span>30 м²</span>
+                                <span>600 м²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Дополнительные услуги -->
+                <div>
+                    <div class="vc-section-title" style="margin-top: 30px;">Дополнительные услуги</div>
+
+                    <!-- Мытьё окон -->
+                    <div class="vc-subsection-title" data-target="vc-windows">
+                        Мытьё окон
+                    </div>
+                    <div class="vc-services-block" id="vc-windows">
+                        <ul class="vc-checkboxes-list">
+                            <li class="vc-checkbox-item" data-name="Мытьё одностворчатого окна" data-price="600">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё одностворчатого окна</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё двухстворчатого окна" data-price="1200">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё двухстворчатого окна</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё трёхстворчатого окна" data-price="1500">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё трёхстворчатого окна</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё панорамного окна" data-price="2500">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё панорамного окна</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё москитной сетки" data-price="250">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё москитной сетки</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё жалюзи" data-price="300">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё жалюзи</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Мытьё балконов -->
+                    <div class="vc-subsection-title" data-target="vc-balcony">
+                        Мытьё балконов и лоджий
+                    </div>
+                    <div class="vc-services-block" id="vc-balcony">
+                        <ul class="vc-checkboxes-list">
+                            <li class="vc-checkbox-item" data-name="Мытьё балкона с остеклением" data-price="2500">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё балкона с остеклением</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё лоджии с остеклением" data-price="2500">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё лоджии с остеклением</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё балкона с панорамным остеклением" data-price="3000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё балкона с панорамным остеклением</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё балконного блока" data-price="1200">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё балконного блока (окно + дверь)</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё балкона без остекления" data-price="750">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё балкона без остекления</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё одной створки" data-price="600">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё одной створки на балконе</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Кухня -->
+                    <div class="vc-subsection-title" data-target="vc-kitchen">
+                        Кухня
+                    </div>
+                    <div class="vc-services-block" id="vc-kitchen">
+                        <ul class="vc-checkboxes-list">
+                            <li class="vc-checkbox-item" data-name="Чистка духового шкафа" data-price="1000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Чистка и мытьё духового шкафа</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Влажная уборка гарнитура" data-price="2000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Влажная уборка кухонного гарнитура</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё микроволновки" data-price="800">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё и чистка микроволновки</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё холодильника" data-price="1000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё холодильника</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё вытяжки" data-price="1000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё вытяжки</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Кальцинация чайника" data-price="300">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Кальцинация чайника</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё посуды" data-price="300">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё посуды (1 раковина)</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё фартука" data-price="700">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё кухонного фартука</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё шкафов внутри" data-price="1200">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё шкафов внутри (пустые)</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Санузел -->
+                    <div class="vc-subsection-title" data-target="vc-bathroom">
+                        Санузел
+                    </div>
+                    <div class="vc-services-block" id="vc-bathroom">
+                        <ul class="vc-checkboxes-list">
+                            <li class="vc-checkbox-item" data-name="Дезинфекция санузла" data-price="1500">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Дезинфекция санузла</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Мытьё плитки" data-price="1000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Мытьё плитки</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Удаление плесени" data-price="2000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Удаление плесени</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Мебель -->
+                    <div class="vc-subsection-title" data-target="vc-furniture">
+                        Мебель и интерьер
+                    </div>
+                    <div class="vc-services-block" id="vc-furniture">
+                        <ul class="vc-checkboxes-list">
+                            <li class="vc-checkbox-item" data-name="Диван 2-местный" data-price="1500">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Диван 2-местный</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                                <div class="vc-quantity-wrapper">
+                                    <button type="button" class="vc-quantity-btn vc-qty-minus">−</button>
+                                    <span class="vc-quantity-value">0</span>
+                                    <button type="button" class="vc-quantity-btn vc-qty-plus">+</button>
+                                </div>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Диван 3-местный" data-price="2000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Диван 3-местный</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                                <div class="vc-quantity-wrapper">
+                                    <button type="button" class="vc-quantity-btn vc-qty-minus">−</button>
+                                    <span class="vc-quantity-value">0</span>
+                                    <button type="button" class="vc-quantity-btn vc-qty-plus">+</button>
+                                </div>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Кресло" data-price="800">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Кресло</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                                <div class="vc-quantity-wrapper">
+                                    <button type="button" class="vc-quantity-btn vc-qty-minus">−</button>
+                                    <span class="vc-quantity-value">0</span>
+                                    <button type="button" class="vc-quantity-btn vc-qty-plus">+</button>
+                                </div>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Стул" data-price="300">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Стул</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                                <div class="vc-quantity-wrapper">
+                                    <button type="button" class="vc-quantity-btn vc-qty-minus">−</button>
+                                    <span class="vc-quantity-value">0</span>
+                                    <button type="button" class="vc-quantity-btn vc-qty-plus">+</button>
+                                </div>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Матрас 1-спальный" data-price="1500">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Матрас 1-спальный</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                                <div class="vc-quantity-wrapper">
+                                    <button type="button" class="vc-quantity-btn vc-qty-minus">−</button>
+                                    <span class="vc-quantity-value">0</span>
+                                    <button type="button" class="vc-quantity-btn vc-qty-plus">+</button>
+                                </div>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Матрас 2-спальный" data-price="2000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Матрас 2-спальный</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                                <div class="vc-quantity-wrapper">
+                                    <button type="button" class="vc-quantity-btn vc-qty-minus">−</button>
+                                    <span class="vc-quantity-value">0</span>
+                                    <button type="button" class="vc-quantity-btn vc-qty-plus">+</button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Текстиль -->
+                    <div class="vc-subsection-title" data-target="vc-textile">
+                        Текстиль и бельё
+                    </div>
+                    <div class="vc-services-block" id="vc-textile">
+                        <ul class="vc-checkboxes-list">
+                            <li class="vc-checkbox-item" data-name="Шторы (за м²)" data-price="400">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Шторы (за м²)</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Тюль (за м²)" data-price="300">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Тюль (за м²)</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Пледы / одеяла" data-price="1000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Пледы / одеяла</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Детская -->
+                    <div class="vc-subsection-title" data-target="vc-children">
+                        Детская комната
+                    </div>
+                    <div class="vc-services-block" id="vc-children">
+                        <ul class="vc-checkboxes-list">
+                            <li class="vc-checkbox-item" data-name="Детская мебель" data-price="1500">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Детская мебель</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                            <li class="vc-checkbox-item" data-name="Игровая зона" data-price="1000">
+                                <label class="vc-checkbox-label">
+                                    <span class="vc-checkbox-custom"></span>
+                                    <span>Игровая зона</span>
+                                    <input type="checkbox" class="vc-checkbox-input">
+                                </label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ПРАВАЯ КОЛОНКА -->
+            <div class="vc-calc-right">
+                <div class="vc-loading" id="vc-loading">
+                    <div class="vc-spinner"></div>
+                    <div>Загрузка прайс-листа...</div>
+                </div>
+
+                <div id="vc-calc-content" style="display: none;">
+                    <div class="vc-total-section">
+                        <div class="vc-total-row">
+                            <span>Площадь:</span>
+                            <span id="vc-total-area">50 м²</span>
+                        </div>
+                        <div class="vc-total-row">
+                            <span>Тариф:</span>
+                            <span id="vc-total-tariff">Старт к чистоте</span>
+                        </div>
+                        <div class="vc-total-row">
+                            <span>Доп. услуги:</span>
+                            <span id="vc-total-extras">0 ₽</span>
+                        </div>
+                        <div class="vc-total-main">
+                            <span class="vc-total-label">Итого:</span>
+                            <span class="vc-total-amount" id="vc-total-amount">0 ₽</span>
+                        </div>
+                    </div>
+
+                    <div class="vc-cta-text">
+                        Оставьте заявку и получите подарок при заказе!
+                    </div>
+
+                    <button type="submit" class="vc-submit-btn">Заказать уборку</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+    (function() {
+        // ============================================
+        // ДАННЫЕ (загружаются из Google Sheets или fallback)
+        // ============================================
+        const SHEET_ID = '1LTg2shsMymi2xH-iw32m4ENOZxjQ0WftOXxSKFcneTg';
+        
+        // Fallback данные
+        const fallbackData = {
+            tariffs: {
+                'старт к чистоте': { '30-59': 200, '60-89': 150, '90-119': 135, '120-149': 120, '150-179': 110, '180-209': 100, '210-239': 95, '240-269': 90, '270-299': 85, '300-349': 80, '350-399': 75, '400-449': 70, '450-499': 65, '500-549': 70, '550-599': 65, '600+': 60 },
+                'путь к порядку': { '30-59': 270, '60-89': 240, '90-119': 180, '120-149': 150, '150-179': 130, '180-209': 120, '210-239': 110, '240-269': 105, '270-299': 100, '300-349': 100, '350-399': 100, '400-449': 95, '450-499': 90, '500-549': 90, '550-599': 90, '600+': 90 },
+                'вектор премиум': { '30-59': 300, '60-89': 260, '90-119': 220, '120-149': 190, '150-179': 160, '180-209': 150, '210-239': 140, '240-269': 130, '270-299': 120, '300-349': 110, '350-399': 110, '400-449': 110, '450-499': 100, '500-549': 100, '550-599': 100, '600+': 100 },
+                'точка обновления': { '30-59': 460, '60-89': 310, '90-119': 290, '120-149': 270, '150-179': 250, '180-209': 240, '210-239': 230, '240-269': 220, '270-299': 210, '300-349': 205, '350-399': 200, '400-449': 195, '450-499': 195, '500-549': 195, '550-599': 195, '600+': 195 },
+                'квант чистоты': { '30-59': 520, '60-89': 330, '90-119': 310, '120-149': 290, '150-179': 260, '180-209': 250, '210-239': 240, '240-269': 230, '270-299': 220, '300-349': 210, '350-399': 210, '400-449': 205, '450-499': 205, '500-549': 205, '550-599': 205, '600+': 205 },
+                'новая орбита': { '30-59': 735, '60-89': 720, '90-119': 710, '120-149': 700, '150-179': 690, '180-209': 690, '210-239': 690, '240-269': 690, '270-299': 680, '300-349': 680, '350-399': 680, '400-449': 680, '450-499': 670, '500-549': 670, '550-599': 670, '600+': 670 }
+            },
+            coefficients: {
+                'слаб': { standard: 0, orbit: 0 },
+                'средн': { standard: 30, orbit: 0 },
+                'сильн': { standard: 50, orbit: 20 },
+                'макс': { standard: 150, orbit: 30 }
+            }
+        };
+
+        let priceData = fallbackData;
+        let isLoading = true;
+
+        // ============================================
+        // ЭЛЕМЕНТЫ
+        // ============================================
+        const form = document.getElementById('vc-form');
+        const cleaningTypeSelect = document.getElementById('vc-cleaning-type');
+        const dirtyTypeSelect = document.getElementById('vc-dirty-type');
+        const areaRange = document.getElementById('vc-area-range');
+        const areaDisplay = document.getElementById('vc-area-display');
+        const loadingEl = document.getElementById('vc-loading');
+        const calcContent = document.getElementById('vc-calc-content');
+        const totalAmountEl = document.getElementById('vc-total-amount');
+        const totalAreaEl = document.getElementById('vc-total-area');
+        const totalTariffEl = document.getElementById('vc-total-tariff');
+        const totalExtrasEl = document.getElementById('vc-total-extras');
+
+        // ============================================
+        // ФУНКЦИИ
+        // ============================================
+        
+        function getAreaRanges() {
+            return [
+                { min: 30, max: 59, key: '30-59' },
+                { min: 60, max: 89, key: '60-89' },
+                { min: 90, max: 119, key: '90-119' },
+                { min: 120, max: 149, key: '120-149' },
+                { min: 150, max: 179, key: '150-179' },
+                { min: 180, max: 209, key: '180-209' },
+                { min: 210, max: 239, key: '210-239' },
+                { min: 240, max: 269, key: '240-269' },
+                { min: 270, max: 299, key: '270-299' },
+                { min: 300, max: 349, key: '300-349' },
+                { min: 350, max: 399, key: '350-399' },
+                { min: 400, max: 449, key: '400-449' },
+                { min: 450, max: 499, key: '450-499' },
+                { min: 500, max: 549, key: '500-549' },
+                { min: 550, max: 599, key: '550-599' },
+                { min: 600, max: 9999, key: '600+' }
+            ];
+        }
+
+        function getPricePerSqm(tariffName, area) {
+            const tariff = priceData.tariffs[tariffName];
+            if (!tariff) return 0;
+
+            const ranges = getAreaRanges();
+            for (const range of ranges) {
+                if (area >= range.min && area <= range.max) {
+                    return tariff[range.key] || 0;
+                }
+            }
+            return tariff['600+'] || 0;
+        }
+
+        function getDirtyCoefficient(dirtyIndex, tariffName) {
+            const isOrbit = tariffName.toLowerCase().includes('новая орбита');
+            const coeffs = priceData.coefficients;
+
+            switch (parseInt(dirtyIndex)) {
+                case 0: return 1;
+                case 1:
+                    if (isOrbit) return 1;
+                    return 1 + (coeffs['средн']?.standard || 30) / 100;
+                case 2:
+                    if (isOrbit) return 1 + (coeffs['сильн']?.orbit || 20) / 100;
+                    return 1 + (coeffs['сильн']?.standard || 50) / 100;
+                case 3:
+                    if (isOrbit) return 1 + (coeffs['макс']?.orbit || 30) / 100;
+                    return 1 + (coeffs['макс']?.standard || 150) / 100;
+                default: return 1;
+            }
+        }
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function calculate() {
+            if (isLoading) return;
+
+            const tariffName = cleaningTypeSelect.options[cleaningTypeSelect.selectedIndex].text.toLowerCase();
+            const dirtyIndex = dirtyTypeSelect.value;
+            const area = parseInt(areaRange.value);
+
+            const coef = getDirtyCoefficient(dirtyIndex, tariffName);
+            const pricePerSqm = getPricePerSqm(tariffName, area);
+            
+            const basePrice = Math.round(area * pricePerSqm * coef);
+
+            // Считаем доп. услуги
+            let extrasPrice = 0;
+            document.querySelectorAll('.vc-checkbox-item').forEach(item => {
+                if (item.classList.contains('checked')) {
+                    const price = parseInt(item.dataset.price) || 0;
+                    const qtyEl = item.querySelector('.vc-quantity-value');
+                    const qty = qtyEl ? parseInt(qtyEl.textContent) : 1;
+                    extrasPrice += price * (qty || 1);
+                }
+            });
+
+            extrasPrice = Math.round(extrasPrice * coef);
+            const total = basePrice + extrasPrice;
+
+            // Обновляем отображение
+            totalAreaEl.textContent = area + ' м²';
+            totalTariffEl.textContent = cleaningTypeSelect.options[cleaningTypeSelect.selectedIndex].text;
+            totalExtrasEl.textContent = formatNumber(extrasPrice) + ' ₽';
+            totalAmountEl.textContent = formatNumber(total) + ' ₽';
+        }
+
+        // ============================================
+        // ОБРАБОТЧИКИ СОБЫТИЙ
+        // ============================================
+
+        // Аккордеон
+        document.querySelectorAll('.vc-subsection-title').forEach(title => {
+            title.addEventListener('click', function() {
+                const targetId = this.dataset.target;
+                const block = document.getElementById(targetId);
+                
+                this.classList.toggle('active');
+                block.classList.toggle('active');
+            });
+        });
+
+        // Чекбоксы
+        document.querySelectorAll('.vc-checkbox-item').forEach(item => {
+            const checkbox = item.querySelector('.vc-checkbox-input');
+            const label = item.querySelector('.vc-checkbox-label');
+
+            label.addEventListener('click', function(e) {
+                e.preventDefault();
+                item.classList.toggle('checked');
+                checkbox.checked = item.classList.contains('checked');
+                
+                // Инициализируем количество если есть контролы
+                const qtyEl = item.querySelector('.vc-quantity-value');
+                const minusBtn = item.querySelector('.vc-qty-minus');
+                
+                if (item.classList.contains('checked') && qtyEl && parseInt(qtyEl.textContent) === 0) {
+                    qtyEl.textContent = '1';
+                    if (minusBtn) minusBtn.disabled = false;
+                } else if (!item.classList.contains('checked')) {
+                    if (qtyEl) qtyEl.textContent = '0';
+                    if (minusBtn) minusBtn.disabled = true;
+                }
+                
+                calculate();
+            });
+        });
+
+        // Контролы количества
+        document.querySelectorAll('.vc-qty-minus').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const item = this.closest('.vc-checkbox-item');
+                const qtyEl = item.querySelector('.vc-quantity-value');
+                let qty = parseInt(qtyEl.textContent);
+                
+                if (qty > 0) {
+                    qty--;
+                    qtyEl.textContent = qty;
+                    
+                    if (qty === 0) {
+                        item.classList.remove('checked');
+                        item.querySelector('.vc-checkbox-input').checked = false;
+                        this.disabled = true;
+                    }
+                    
+                    calculate();
+                }
+            });
+        });
+
+        document.querySelectorAll('.vc-qty-plus').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const item = this.closest('.vc-checkbox-item');
+                const qtyEl = item.querySelector('.vc-quantity-value');
+                let qty = parseInt(qtyEl.textContent);
+                
+                qty++;
+                qtyEl.textContent = qty;
+                
+                if (!item.classList.contains('checked')) {
+                    item.classList.add('checked');
+                    item.querySelector('.vc-checkbox-input').checked = true;
+                    this.previousElementSibling.previousElementSibling.disabled = false;
+                }
+                
+                calculate();
+            });
+        });
+
+        // Select и range
+        cleaningTypeSelect.addEventListener('change', calculate);
+        dirtyTypeSelect.addEventListener('change', calculate);
+        
+        areaRange.addEventListener('input', function() {
+            areaDisplay.textContent = this.value;
+            calculate();
+        });
+
+        // Отправка формы
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const total = totalAmountEl.textContent;
+            alert('Спасибо за заявку!\nСумма заказа: ' + total + '\nМенеджер свяжется с вами в ближайшее время.');
+        });
+
+        // ============================================
+        // ИНИЦИАЛИЗАЦИЯ
+        // ============================================
+        
+        // Скрываем loading, показываем калькулятор
+        setTimeout(function() {
+            isLoading = false;
+            loadingEl.style.display = 'none';
+            calcContent.style.display = 'block';
+            form.classList.add('show-calc');
+            calculate();
+        }, 500);
+
+    })();
+    </script>
+</div>
