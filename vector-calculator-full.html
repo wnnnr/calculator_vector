@@ -32,25 +32,12 @@
 .hc-content {
   flex: 1;
   display: flex;
-  padding: 40px 50px;
-  gap: 50px;
-}
-
-.hc-form {
-  flex: 1;
-  display: flex;
   flex-direction: column;
+  justify-content: center;
+  padding: 40px 50px;
   gap: 28px;
 }
 
-.hc-results {
-  flex: 0 0 280px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-/* Slider field */
 .hc-field-label {
   font-size: 15px;
   font-weight: 500;
@@ -108,7 +95,6 @@
   margin-top: 6px;
 }
 
-/* Location */
 .hc-location-title {
   font-size: 15px;
   font-weight: 500;
@@ -154,7 +140,9 @@
   background: #CB2A20;
 }
 
-/* Results */
+.hc-result-block {
+  margin-top: 8px;
+}
 .hc-result-label {
   font-size: 16px;
   font-weight: 500;
@@ -168,16 +156,20 @@
   margin-bottom: 16px;
 }
 
-.hc-btn {
+#hookah-calc .hc-btn,
+#hookah-calc .hc-btn:link,
+#hookah-calc .hc-btn:visited,
+#hookah-calc .hc-btn:hover,
+#hookah-calc .hc-btn:active {
   display: block;
-  width: 100%;
+  max-width: 280px;
   height: 45px;
   line-height: 45px;
   padding: 0;
   background: #CB2A20;
-  color: #FFFFFF;
+  color: #FFFFFF !important;
   text-align: center;
-  text-decoration: none;
+  text-decoration: none !important;
   font-family: 'Inter', sans-serif;
   font-size: 15px;
   font-weight: 600;
@@ -185,21 +177,10 @@
   border-radius: 0;
   cursor: pointer;
   transition: background 0.2s;
+  -webkit-text-fill-color: #FFFFFF;
 }
-.hc-btn:hover {
+#hookah-calc .hc-btn:hover {
   background: #a82219;
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .hc-content {
-    flex-direction: column;
-    padding: 30px;
-    gap: 30px;
-  }
-  .hc-results {
-    flex: none;
-  }
 }
 
 @media (max-width: 768px) {
@@ -209,18 +190,20 @@
   .hc-photo {
     flex: none;
     min-height: 300px;
-    order: 2;
   }
   .hc-content {
-    order: 1;
     padding: 24px 15px;
-    gap: 24px;
-  }
-  .hc-form {
     gap: 22px;
   }
   .hc-result-price {
     font-size: 28px;
+  }
+  #hookah-calc .hc-btn,
+  #hookah-calc .hc-btn:link,
+  #hookah-calc .hc-btn:visited,
+  #hookah-calc .hc-btn:hover,
+  #hookah-calc .hc-btn:active {
+    max-width: 100%;
   }
 }
 </style>
@@ -229,47 +212,40 @@
   <div class="hc-photo"></div>
 
   <div class="hc-content">
-    <div class="hc-form">
-      <!-- Количество гостей -->
-      <div>
-        <div class="hc-field-label">Количество гостей</div>
-        <div class="hc-slider-value" id="hc-guests-val">10</div>
-        <input type="range" class="hc-range" id="hc-guests" min="1" max="15" value="10">
-        <div class="hc-range-limits"><span>1</span><span>15</span></div>
-      </div>
+    <div>
+      <div class="hc-field-label">Количество гостей</div>
+      <div class="hc-slider-value" id="hc-guests-val">10</div>
+      <input type="range" class="hc-range" id="hc-guests" min="1" max="15" value="10">
+      <div class="hc-range-limits"><span>1</span><span>15</span></div>
+    </div>
 
-      <!-- Продолжительность мероприятия -->
-      <div>
-        <div class="hc-field-label">Продолжительность мероприятия</div>
-        <div class="hc-slider-value" id="hc-hours-val">3</div>
-        <input type="range" class="hc-range" id="hc-hours" min="1" max="12" value="3">
-        <div class="hc-range-limits"><span>1</span><span>12</span></div>
-      </div>
+    <div>
+      <div class="hc-field-label">Продолжительность мероприятия</div>
+      <div class="hc-slider-value" id="hc-hours-val">3</div>
+      <input type="range" class="hc-range" id="hc-hours" min="1" max="12" value="3">
+      <div class="hc-range-limits"><span>1</span><span>12</span></div>
+    </div>
 
-      <!-- Где будет мероприятие -->
-      <div>
-        <div class="hc-location-title">Где будет мероприятие?</div>
-        <div class="hc-location-hint">Выезд по Москве бесплатно, за МКАД — рассчитывается отдельно</div>
-        <div class="hc-radio-group">
-          <label class="hc-radio-label">
-            <input type="radio" name="hc-location" value="moscow" checked>
-            <span class="hc-radio-circle"></span>
-            Москва
-          </label>
-          <label class="hc-radio-label">
-            <input type="radio" name="hc-location" value="region">
-            <span class="hc-radio-circle"></span>
-            Московская область
-          </label>
-        </div>
+    <div>
+      <div class="hc-location-title">Где будет мероприятие?</div>
+      <div class="hc-location-hint">Выезд по Москве бесплатно, за МКАД — рассчитывается отдельно</div>
+      <div class="hc-radio-group">
+        <label class="hc-radio-label">
+          <input type="radio" name="hc-location" value="moscow" checked>
+          <span class="hc-radio-circle"></span>
+          Москва
+        </label>
+        <label class="hc-radio-label">
+          <input type="radio" name="hc-location" value="region">
+          <span class="hc-radio-circle"></span>
+          Московская область
+        </label>
       </div>
     </div>
 
-    <div class="hc-results">
-      <div>
-        <div class="hc-result-label">Предварительная стоимость:</div>
-        <div class="hc-result-price" id="hc-price">21 000 ₽</div>
-      </div>
+    <div class="hc-result-block">
+      <div class="hc-result-label">Предварительная стоимость:</div>
+      <div class="hc-result-price" id="hc-price">25 200 ₽</div>
       <a href="#popup:myform" class="hc-btn">Оставить заявку</a>
     </div>
   </div>
