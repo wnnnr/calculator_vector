@@ -24,9 +24,8 @@
 }
 
 .hc-photo {
-  flex: 0 0 42%;
-  background-size: cover;
-  background-position: center;
+  flex: 0 0 50%;
+  background: url('https://static.tildacdn.com/tild3665-3061-4632-b937-636630323761/image_58_1.png') center/cover no-repeat;
   min-height: 500px;
 }
 
@@ -48,7 +47,7 @@
   flex: 0 0 280px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
 /* Slider field */
@@ -166,15 +165,17 @@
   font-size: 36px;
   font-weight: 700;
   color: #fff;
-  margin-bottom: 30px;
+  margin-bottom: 16px;
 }
 
 .hc-btn {
   display: block;
   width: 100%;
-  padding: 16px;
+  height: 45px;
+  line-height: 45px;
+  padding: 0;
   background: #CB2A20;
-  color: #fff;
+  color: #FFFFFF;
   text-align: center;
   text-decoration: none;
   font-family: 'Inter', sans-serif;
@@ -212,7 +213,7 @@
   }
   .hc-content {
     order: 1;
-    padding: 24px 20px;
+    padding: 24px 15px;
     gap: 24px;
   }
   .hc-form {
@@ -225,7 +226,7 @@
 </style>
 
 <div class="hc-wrapper">
-  <div class="hc-photo photo"></div>
+  <div class="hc-photo"></div>
 
   <div class="hc-content">
     <div class="hc-form">
@@ -233,8 +234,8 @@
       <div>
         <div class="hc-field-label">Количество гостей</div>
         <div class="hc-slider-value" id="hc-guests-val">10</div>
-        <input type="range" class="hc-range" id="hc-guests" min="1" max="50" value="10">
-        <div class="hc-range-limits"><span>1</span><span>50</span></div>
+        <input type="range" class="hc-range" id="hc-guests" min="1" max="15" value="10">
+        <div class="hc-range-limits"><span>1</span><span>15</span></div>
       </div>
 
       <!-- Продолжительность мероприятия -->
